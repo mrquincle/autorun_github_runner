@@ -1,0 +1,78 @@
+#!/bin/sh
+
+__cleanup()
+{
+	SIGNAL=$1
+
+	if [ -n "$SIGNAL" ]
+	then
+		trap $SIGNAL
+		kill -${SIGNAL} $$
+	fi
+}
+
+__message()
+{
+	echo
+	echo "Usage:"
+	echo " $0 <key> <user>"
+	echo ""
+	echo "Log into a machine using a private key."
+	echo
+	echo "Options:"
+	echo " -k, --key                    private key to use"
+	echo " -u, --user                   user account to log into"
+	echo
+	echo " -h, --help                   display this help"
+	echo
+	echo "For more details see https://github.com/mrquincle/autorun_github_runner."
+}
+
+trap __message EXIT
+
+# Requires GNU getopt. If long options are required, install it on OS X and FreeBSD.
+OPTS=$(getopt --options k:u: \
+	--long key:,user:,help \
+	--name "$0" -- "$@")
+
+# If previous command returns non-zero exit code, something went wrong
+if [ $? != 0 ] ; then echo "Terminating..." >&2 ; exit 1 ; fi
+
+eval set -- "$OPTS"
+
+while true; do
+	case "$1" in
+		-k | --key )
+			key="$2"
+			shift 2
+			;;
+		-u | --user )
+			user="$2"
+			shift 2
+			;;
+		-h | --help)
+			exit 0
+			;;
+		-- )
+			shift
+			;;
+		* )
+			break;
+			;;
+	esac
+done
+
+if [ -z "$key" ] || [ -z "$user" ]; then
+	echo "Not enough arguments"
+	exit
+fi
+
+trap __cleanup EXIT
+
+port=2222
+
+echo "Wait till userkey.pub is served from the http server"
+echo "Local ssh on port $port (already configured with 'create_vm')"
+echo "TERM=xterm ssh $user@localhost -i $key -p $port"
+echo 
+TERM=xterm ssh $user@localhost -i "$key" -p $port

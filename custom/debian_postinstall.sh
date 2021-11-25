@@ -286,7 +286,11 @@ log_command @@VBOX_INSERT_POST_INSTALL_COMMAND@@
 #
 echo "--------------------------------------------------" >> "${MY_LOGFILE}"
 echo '** Installing packages for SSH access...' | tee -a "${MY_LOGFILE}"
-log_command_in_target apt-get -y install openssh-server vim ca-certificates curl gnupg lsb-release
+log_command_in_target apt-get -y install openssh-server
+
+# Installing more would be great, but this tends to fail even with options like
+# DEBIAN_FRONTEND=noninteractive apt-get -y --no-install-recommends 
+# Install vim ca-certificates curl gnupg lsb-release afterwards.
 
 #
 # Configuring SSH access

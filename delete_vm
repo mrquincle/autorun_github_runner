@@ -1,0 +1,67 @@
+#!/bin/bash
+
+__cleanup()
+{
+	SIGNAL=$1
+
+	if [ -n "$SIGNAL" ]
+	then
+		trap $SIGNAL
+		kill -${SIGNAL} $$
+	fi
+}
+
+__message()
+{
+	echo
+	echo "Usage:"
+	echo " $0 <virtual-machine-name>"
+	echo ""
+	echo "Delete a virtual machine (including disk)."
+	echo
+	echo "Options:"
+	echo " -v, --virtual-machine-name   the vm to delete"
+	echo
+	echo " -h, --help                   display this help"
+	echo
+	echo "For more details see https://github.com/mrquincle/autorun_github_runner."
+}
+
+trap __message EXIT
+
+# Requires GNU getopt. If long options are required, install it on OS X and FreeBSD.
+OPTS=$(getopt --options v: \
+	--long virtual-machine-name:,help \
+	--name "$0" -- "$@")
+
+# If previous command returns non-zero exit code, something went wrong
+if [ $? != 0 ] ; then echo "Terminating..." >&2 ; exit 1 ; fi
+
+eval set -- "$OPTS"
+
+while true; do
+	case "$1" in
+		-v | --virtual-machine-name )
+			vm="$2"
+			shift 2
+			;;
+		-h | --help)
+			exit 0
+			;;
+		-- )
+			shift
+			;;
+		* )
+			break;
+			;;
+	esac
+done
+
+if [ -z "$vm" ]; then
+	echo "Not enough arguments"
+	exit
+fi
+
+trap __cleanup EXIT
+
+vboxmanage unregistervm --delete "$vm"
