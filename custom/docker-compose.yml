@@ -1,0 +1,11 @@
+version: "3.7"
+services:
+    runner:
+      image: tcardonne/github-runner:latest
+      environment:
+        RUNNER_NAME: "@@RUNNER_NAME@@"
+        RUNNER_REPOSITORY_URL: "@@RUNNER_REPOSITORY@@"
+        RUNNER_LABELS: "@@RUNNER_LABELS@@"
+        RUNNER_TOKEN: "@@RUNNER_TOKEN@@"
+      volumes:
+        - /var/run/docker.sock:/var/run/docker.sock
