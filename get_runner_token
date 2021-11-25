@@ -1,0 +1,85 @@
+#!/bin/sh
+
+__cleanup()
+{
+	SIGNAL=$1
+
+	if [ -n "$SIGNAL" ]
+	then
+		trap $SIGNAL
+		kill -${SIGNAL} $$
+	fi
+}
+
+__message()
+{
+	echo
+	echo "Usage:"
+	echo " $0 <user> <user-token> <organisation>"
+	echo ""
+	echo "Get new runner token (valid for 60 min) from github using github name and user token."
+	echo
+	echo "Options:"
+	echo " -u, --user                   github user (not user in the vm)"
+	echo " -t, --user-token             github user token (not runner token)"
+	echo " -o, --organisation           github organisation"
+	echo
+	echo " -h, --help                   display this help"
+	echo
+	echo "For more details see https://github.com/mrquincle/autorun_github_runner."
+}
+
+trap __message EXIT
+
+# Requires GNU getopt. If long options are required, install it on OS X and FreeBSD.
+OPTS=$(getopt --options u:t:o:h \
+	--long user:,user-token:,organisation:,help \
+	--name "$0" -- "$@")
+
+# If previous command returns non-zero exit code, something went wrong
+if [ $? != 0 ] ; then echo "Terminating..." >&2 ; exit 1 ; fi
+
+eval set -- "$OPTS"
+
+while true; do
+	case "$1" in
+		-u | --user )
+			user="$2"
+			shift 2
+			;;
+		-t | --user-token )
+			user_token="$2"
+			shift 2
+			;;
+		-o | --organisation )
+			organisation="$2"
+			shift 2
+			;;
+		-h | --help)
+			exit 0
+			;;
+		-- )
+			shift
+			;;
+		* )
+			break;
+			;;
+	esac
+done
+
+if [ -z "$user" ] || [ -z "$user_token" ] || [ -z "$organisation" ]; then
+	echo "Not enough arguments"
+	exit
+fi
+
+trap __cleanup EXIT
+
+#echo "Requires jq"
+
+url=https://api.github.com/orgs/$organisation/actions/runners/registration-token
+#echo "curl -X POST -u $user:$user_token -H \"Accept: application/vnd.github.v3+json\" $url"
+
+mkdir -p custom
+curl -s -X POST -u $user:$user_token -H "Accept: application/vnd.github.v3+json" $url --output custom/.result.json
+
+cat custom/.result.json | jq -r '.token'
