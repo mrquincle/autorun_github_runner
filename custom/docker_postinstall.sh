@@ -11,3 +11,17 @@ docker container exec -it $container_id apt-get install -y cmake gcc g++ git mak
 
 # Download bluetooth-related stuff
 docker container exec -it $container_id apt-get install bluez
+
+echo 'Now hciconfig should work (if not, disable on host)'
+hciconfig
+
+echo 'Make sure it is up'
+hciconfig hci0 up
+
+echo 'Type the following command to start dbus (takes a while)'
+echo /etc/init.d/dbus start
+
+echo 'Test scanning (should work)'
+hcitool lescan
+
+echo 'The tool bluetoothctl is not working.'
