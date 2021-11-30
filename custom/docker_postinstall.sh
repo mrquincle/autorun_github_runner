@@ -10,7 +10,7 @@ docker container exec -it $container_id apt update
 docker container exec -it $container_id apt-get install -y cmake gcc g++ git make python3 python3-pip wget unzip libusb-1.0-0 libsm6
 
 # Download bluetooth-related stuff
-docker container exec -it $container_id apt-get install bluez
+docker container exec -it $container_id apt-get install -y bluez
 
 echo 'Now hciconfig should work (if not, disable on host)'
 hciconfig

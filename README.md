@@ -8,14 +8,17 @@ Automatically does the following:
 
 # Prequisites
 
-Virtualbox
+Install virtualbox, guest additions, python, and jq.
 
 ```
 sudo apt install virtualbox virtualbox-guest-additions-iso
 sudo apt install python
+sudo apt install jq
 ```
 
 # Workflow
+
+## Configure VM
 
 ```
 USER=...
@@ -61,21 +64,57 @@ Start the VM
 ./start_vm --virtual-machine-name github-action-runner
 ```
 
-SSH into the VM
-
-```
-./ssh_into_vm --key ~/.ssh/virtualmachine/id_rsa256
-```
-
-Get a token for the action runner
+Get a token for the action runner:
 
 ```
 GITHUB_USER=
 GITHUB_USER_TOKEN=
-GITHUB_ORGANISATION=
-./get_runner_token --user $GITHUB_USER --user-token $GITHUB_USER_TOKEN --organisation $GITHUB_ORGANISATION
+GITHUB_ORGANISATION=crownstone
+GITHUB_REPOSITORY=bluenet
+./get_runner_token --user $GITHUB_USER --user-token $GITHUB_USER_TOKEN --organisation $GITHUB_ORGANISATION --repository $GITHUB_REPOSITORY
+RUNNER_TOKEN=
 ```
 
+Warning! You can also get tokens for the organisation, make sure you get one for the repository. If everything fails, just navigate to your repository similar to <https://github.com/crownstone/bluenet/settings/actions/runners/new> and copy the token from there.
+
+Copy files to the VM:
+
+```
+./setup_runner --key ~/.ssh/virtualmachine/id_rsa256 --user crown --runner-name 'UbuntuDocker' --github 'https://github.com/crownstone/bluenet' --labels 'self-hosted, Linux, X64' --token $RUNNER_TOKEN
+```
+
+SSH into the VM
+
+```
+./ssh_into_vm --key ~/.ssh/virtualmachine/id_rsa256 --user $USER
+```
+
+## On the VM itself, install docker
+
+Now install docker in the VM
+
+```
+cd custom
+./docker.sh
+```
+
+Run docker
+
+```
+cd docker
+docker-compose up
+```
+
+It probably took too long for the key above. Just run `get_runner_token` again to get a new key on your host computer.
+
+It might be that you need some additional magic here. Here we can download some more stuff for the docker (make sure it is up).
+
+```
+cd custom
+./docker_postinstall.sh
+```
+
+There is still a bit to be figured out to have a Nordic development kit attached to it and working flawlessly, but we're almost there!
 
 # Copyright
 
