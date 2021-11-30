@@ -175,7 +175,7 @@ echo "Forward port 2222 on the host to 22 on the client"
 vboxmanage modifyvm "$vm" --natpf1 "guestssh,tcp,,2222,,22"
 
 echo "Enable USB on the virtual machine"
-vboxmanage modifyvm "runner" --usb on
+vboxmanage modifyvm "$vm" --usb on
 
 echo "Done!"
 
