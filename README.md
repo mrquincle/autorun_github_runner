@@ -16,13 +16,20 @@ sudo apt install python
 sudo apt install jq
 ```
 
+Configure user
+
+```
+sudo adduser $USER vboxusers
+newgrp vboxusers
+```
+
 # Workflow
 
 ## Configure VM
 
 ```
-USER=...
-PASSWORD=...
+VM_USER=...
+VM_PASSWORD=...
 mkdir -p ~/virtualbox
 ```
 
@@ -39,7 +46,7 @@ First edit `custom/debian_postinstall.sh` and replace `HOST_IP` with the IP of y
 Use `ip a` to see the IP of your machine.
 
 ```
-./create_vm --path ~/virtualbox --virtual-machine-name github-action-runner --disk-name github-action-disk --iso-file ~/virtualbox/ubuntu-20.04.3-desktop-amd64.iso --user $USER --password $PASSWORD
+./create_vm --path ~/virtualbox --virtual-machine-name github-action-runner --disk-name github-action-disk --iso-file ~/virtualbox/ubuntu-20.04.3-desktop-amd64.iso --user $VM_USER --password $VM_PASSWORD
 ```
 
 Check if HOST is set correctly (in the logs)! If not, just run:
@@ -86,7 +93,7 @@ Copy files to the VM:
 SSH into the VM
 
 ```
-./ssh_into_vm --key ~/.ssh/virtualmachine/id_rsa256 --user $USER
+./ssh_into_vm --key ~/.ssh/virtualmachine/id_rsa256 --user $VM_USER
 ```
 
 ## On the VM itself, install docker
@@ -115,6 +122,51 @@ cd custom
 ```
 
 There is still a bit to be figured out to have a Nordic development kit attached to it and working flawlessly, but we're almost there!
+
+To stop everything:
+
+```
+docker-compose down
+```
+
+Exit VM and:
+
+```
+./stop_vm --virtual-machine-name github-action-runner
+```
+
+## Extras
+
+It might be the case that you want USB access in your VM. Type on your host:
+
+```
+vboxmanage list usbhost
+```
+
+This should give a list. If not, check if you've executed the commands about the `vboxusers` group at the start.
+
+Now, check the UUIDs and attach a USB device, say with something like:
+
+```
+vboxmanage controlvm "github-action-runner" usbattach cc4cf1d7-df03-4920-834b-9c3ac98ad6bb
+```
+
+This would maybe add a device to `lsusb`. In my case:
+
+```
+Bus 001 Device 002: ID 04ca:3015 Lite-On Technology Corp.
+```
+
+And suddenly `hciconfig` starts working. Yes. We have bluetooth now as well:
+
+```
+bluetoothctl
+
+Agent registered
+[CHG] Controller 98:22:EF:85:0E:62 Pairable: yes
+```
+
+You can to the same with e.g. the Segger JLink device. Add it with the `usbattach` command while the VM is running.
 
 # Copyright
 
