@@ -1,7 +1,7 @@
 version: "3.7"
 services:
     runner:
-      image: tcardonne/github-runner:latest
+      image: mrquincle/github-runner:latest
       environment:
         RUNNER_NAME: "@@RUNNER_NAME@@"
         RUNNER_REPOSITORY_URL: "@@RUNNER_REPOSITORY@@"

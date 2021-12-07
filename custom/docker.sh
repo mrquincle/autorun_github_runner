@@ -3,6 +3,7 @@
 echo "Create directory for docker"
 mkdir ~/docker
 cp ~/custom/.docker-compose.yml.private ~/docker/docker-compose.yml
+cp ~/custom/docker_postinstall.sh ~/docker
 
 echo "Update prerequisites"
 sudo apt-get update
