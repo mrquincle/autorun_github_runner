@@ -27,8 +27,12 @@ echo "Start docker"
 sudo systemctl start docker
 
 echo "Now run docker-compose yourself by: "
-
+echo
 echo "  cd ~/docker"
-echo "  docker-compose up"
-echo ""
-echo "Watch the first message, the github action tokens expire fast!"
+echo "  docker-compose up -d"
+echo
+echo "This runs the docker in detached state, check the logs with:"
+echo
+echo "  docker-compose logs"
+echo
+echo "And check the first message, the github action tokens expire fast!"
